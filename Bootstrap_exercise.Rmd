@@ -1,0 +1,61 @@
+---
+title: "Bootstrap"
+author: "santiago"
+date: "1/24/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+#Define function
+percentciboot <- function(x,b,alpha){
+  theta<- mean(x)
+  theta_star <- rep(0,times=b)
+  n <- length(x)
+  for(i in 1:b){
+    xstar <- sample(x,n,replace=T)
+    theta_star[i] <- mean(xstar)
+  }
+  theta_star <- sort(theta_star)
+  pick <- round((alpha/2)*(b+1))
+  lower <- theta_star[pick]
+  upper <- theta_star[b-pick+1]
+  list(theta=theta,lower=lower,upper=upper)
+}
+
+```
+
+#Example 4.9.1
+```{r}
+#Generate distribution and find mean
+set.seed(20)
+rgamma(n=20,shape = 1, scale=100)->sample1
+sample1
+mean(sample1)
+```
+The mean is our point estimate for theta, the scale parameter.
+
+```{r}
+percentciboot(sample1,3000,.10)
+mean(sample(sample1,length(sample1),replace=T))
+
+
+
+
+```
+
+
+
+
+
+
+```{r}
+x <- seq(10)
+rep(x)
+rep(x, times = 3, length.out = NA, each = 1)
+
+```
+

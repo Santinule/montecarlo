@@ -1,0 +1,205 @@
+---
+title: "PS5_Partc num 3"
+author: "santiago"
+date: "11/7/2021"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse)
+```
+# A
+
+```{r}
+samples_gen <-function(n){
+  list()->list1
+  for (i in 1:n){
+    #Generatete x1 with n=10 from uniform[0,20]
+    runif(25,0,20)->x1
+    runif(25,0,20)->x2
+    runif(25,0,20)->x3
+    runif(25,0,20)->x4
+    #Generate errors from standard  normal
+    rnorm(25,mean=0,sd=5)->errors1
+    data.frame(x1=x1,x2=x2,x3=x3,x4=x4,error=errors1) %>%
+      mutate(y= 1- 1*x1 +1*x2-1*x3^2+0.5*x4+error)->list1[[i]]
+  }
+
+return(list1)
+}
+
+```
+
+## 10 samples
+
+```{r}
+samples_gen(10)->obj_10_samples
+```
+
+```{r}
+#Genearte linear model for each sample
+map(.x=obj_10_samples, ~lm(y~x1+x2+I(x3^2)+x4,data=.))->lm10
+
+
+```
+
+```{r}
+vector(mode="numeric", length = 10)->vec1
+vector(mode="numeric", length = 10)->vec2
+vector(mode="numeric", length = 10)->vec3
+vector(mode="numeric", length = 10)->vec4
+vector(mode="numeric", length = 10)->vec5
+
+for (i in 1:10){
+  lm10[[i]]$coefficients[[1]][1]->vec1[[i]]
+  lm10[[i]]$coefficients[[2]][1]->vec2[[i]]
+  lm10[[i]]$coefficients[[3]][1]->vec3[[i]]
+  lm10[[i]]$coefficients[[4]][1]->vec4[[i]]
+  lm10[[i]]$coefficients[[5]][1]->vec5[[i]]
+  
+}
+```
+
+```{r}
+#Output the mean for the coeffcicents from n samples
+c(mean(vec1),mean(vec2),mean(vec3),mean(vec4),mean(vec5))->mean_n10
+
+#Output the variance for the coefficients from n samples
+c(var(vec1),var(vec2),var(vec3),var(vec4),var(vec5))->var_n10
+```
+
+```{r}
+vector(mode="numeric", length = 10)->vec1
+vector(mode="numeric", length = 10)->vec2
+vector(mode="numeric", length = 10)->vec3
+vector(mode="numeric", length = 10)->vec4
+vector(mode="numeric", length = 10)->vec5
+
+for (i in 1:10){
+  lm10[[i]]$coefficients[[1]][1]-1->vec1[[i]]
+  lm10[[i]]$coefficients[[2]][1]+1->vec2[[i]]
+  lm10[[i]]$coefficients[[3]][1]-1->vec3[[i]]
+  lm10[[i]]$coefficients[[4]][1]+1->vec4[[i]]
+  lm10[[i]]$coefficients[[5]][1]-0.5->vec5[[i]]
+  
+}
+c(vec1,vec2,vec3,vec4)->terms10
+sum(terms10^2)/10->MSE_B_10
+
+
+```
+
+Below are the mean betas, the variances and MSE FOR 10 SAMPLES.
+```{r}
+mean_n10
+var_n10
+MSE_B_10
+
+```
+
+### 500 samples
+
+```{r}
+samples_gen(500)->obj_500_samples
+```
+
+```{r}
+#Genearte linear model for each sample
+map(.x=obj_500_samples, ~lm(y~x1+x2+I(x3^2)+x4,data=.))->lm500
+
+
+```
+
+```{r}
+vector(mode="numeric", length = 500)->vec1
+vector(mode="numeric", length = 500)->vec2
+vector(mode="numeric", length = 500)->vec3
+vector(mode="numeric", length = 500)->vec4
+vector(mode="numeric", length = 500)->vec5
+
+for (i in 1:500){
+  lm500[[i]]$coefficients[[1]][1]->vec1[[i]]
+  lm500[[i]]$coefficients[[2]][1]->vec2[[i]]
+  lm500[[i]]$coefficients[[3]][1]->vec3[[i]]
+  lm500[[i]]$coefficients[[4]][1]->vec4[[i]]
+  lm500[[i]]$coefficients[[5]][1]->vec5[[i]]
+  
+}
+```
+
+```{r}
+#Output the mean for the coeffcicents from n samples
+c(mean(vec1),mean(vec2),mean(vec3),mean(vec4),mean(vec5))->mean_n500
+
+#Output the variance for the coefficients from n samples
+c(var(vec1),var(vec2),var(vec3),var(vec4),var(vec5))->var_n500
+```
+
+```{r}
+vector(mode="numeric", length = 500)->vec1
+vector(mode="numeric", length = 500)->vec2
+vector(mode="numeric", length = 500)->vec3
+vector(mode="numeric", length = 500)->vec4
+vector(mode="numeric", length = 500)->vec5
+
+for (i in 1:500){
+  lm500[[i]]$coefficients[[1]][1]-1->vec1[[i]]
+  lm500[[i]]$coefficients[[2]][1]+1->vec2[[i]]
+  lm500[[i]]$coefficients[[3]][1]-1->vec3[[i]]
+  lm500[[i]]$coefficients[[4]][1]+1->vec4[[i]]
+  lm500[[i]]$coefficients[[5]][1]-0.5->vec5[[i]]
+  
+}
+c(vec1,vec2,vec3,vec4,vec5)->terms500
+sum(terms500^2)/500->MSE_B_500
+
+
+```
+
+Below are the mean betas, the variances and MSE FOR 500 SAMPLES.
+```{r}
+mean_n500
+var_n500
+MSE_B_500
+
+```
+```{r}
+mean_n10
+var_n10
+MSE_B_10
+mean_n500
+var_n500
+MSE_B_500
+```
+
+Once again, the estimated coefficients accurately represent the population parameters.The intercept seems to be the less accurate for 10 samples. We also see that as the number of samples increases the mean squared error of B decreases. Essentially, we see very similar results as we did in the linear case.
+
+# B
+
+```{r}
+b1list10 <- vector(mode = "numeric", length=10)
+for (i in 1:10){
+  lm10[[i]]$coefficients[[2]][1]->b1list10[[i]]
+  
+}
+plot(b1list10)
+abline(h=mean_n10[[2]])
+```
+
+
+```{r}
+b1list500 <- vector(mode = "numeric", length=500)
+for (i in 1:500){
+  lm500[[i]]$coefficients[[2]][1]->b1list500[[i]]
+  
+}
+plot(b1list500)
+abline(h=mean_n500[[2]])
+```
+
+# C 
+
+We can clearly see that increasing the number of samples increases the accuracy of our predicted estimate and also reduces the Mean squared error of (beta_hat) on the margin. We also find that the results are very similar to what we saw in the linear case.

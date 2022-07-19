@@ -1,0 +1,56 @@
+---
+title: "Estimating Mathematical Constant using Montecarlo"
+author: "santiago"
+date: "1/27/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+Estimate log2 by estimating $\int_0^1 \frac{1}{1+x}dx$.
+
+How to estimate $\int_0^1 \frac{1}{1+x}dx$ using simulation?
+
+$$\int_0^1 \frac{1}{1+x}dx = E(\frac{1}{1+X}),  where X \sim Unif(0, 1)$$ 
+Estimate $$E(\frac{1}{1+X}),  where X \sim Unif(0, 1)$$ by simulation.
+
+Estimate the Expected value (population mean) use sample mean of Y = 1/(1+X), denote the sample mean of Y as y_bar. also, find the sample std.dev. of Y=1/(1+X), denote the sample std.dev. as s_y. Then, we can construct the CI for E(Y): y_bar +/- z*s_y/sqrt(n)
+
+Generate/Compute samples for y_i = 1/(1+X_i) by simulation.
+
+Generate samples for x_i ~ Unif(0, 1) by simualtion. i = 1, 2. ...., 10,000 (sample size n)
+
+```{r}
+estimate_log2 <- function(seed = 29, n = 10000, interval= 0.95){
+    # set seed for reproducibility
+    set.seed(seed)
+    
+    # generate x
+    x <- runif(n, min = 0, max = 1)
+    
+    #generate samples, i.e., transform x
+    y <- 1/(1+x)
+    
+    
+    # Point estimates from sample
+    mean(y) -> EY #Calculate estimate for ln2
+    #Calculate SE
+    sd(y)->sdY 
+    sdY/sqrt(n) -> se
+    
+    
+    c.i <- c(EY-se*qnorm(p=interval),EY+se*qnorm(p=interval))
+    return(c(c.i[1],"<=",EY,"<=",c.i[2]))
+}
+
+estimate_log2()
+
+
+log(2)
+```
+
+
+
